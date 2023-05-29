@@ -3,5 +3,121 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
+    "virtual-tree": {
+      "projectType": "library",
+      "root": "projects/virtual-tree",
+      "sourceRoot": "projects/virtual-tree/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/virtual-tree/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/virtual-tree/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/virtual-tree/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/virtual-tree/tsconfig.spec.json",
+            "polyfills": ["zone.js", "zone.js/testing"]
+          }
+        }
+      }
+    },
+    "virtual-tree-test": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "standalone": true
+        },
+        "@schematics/angular:directive": {
+          "standalone": true
+        },
+        "@schematics/angular:pipe": {
+          "standalone": true
+        }
+      },
+      "root": "projects/virtual-tree-test",
+      "sourceRoot": "projects/virtual-tree-test/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/virtual-tree-test",
+            "index": "projects/virtual-tree-test/src/index.html",
+            "main": "projects/virtual-tree-test/src/main.ts",
+            "polyfills": ["zone.js"],
+            "tsConfig": "projects/virtual-tree-test/tsconfig.app.json",
+            "assets": ["projects/virtual-tree-test/src/favicon.ico", "projects/virtual-tree-test/src/assets"],
+            "styles": ["projects/virtual-tree-test/src/custom-theme.scss", "projects/virtual-tree-test/src/styles.css"],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "browserTarget": "virtual-tree-test:build:production"
+            },
+            "development": {
+              "browserTarget": "virtual-tree-test:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "virtual-tree-test:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": ["zone.js", "zone.js/testing"],
+            "tsConfig": "projects/virtual-tree-test/tsconfig.spec.json",
+            "assets": ["projects/virtual-tree-test/src/favicon.ico", "projects/virtual-tree-test/src/assets"],
+            "styles": ["projects/virtual-tree-test/src/styles.css"],
+            "scripts": []
+          }
+        }
+      }
+    }
   }
 }

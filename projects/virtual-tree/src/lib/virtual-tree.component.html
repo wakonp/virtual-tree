@@ -1,0 +1,4 @@
+<cdk-virtual-scroll-viewport #viewport [itemSize]="itemSize">
+  <ng-container *cdkVirtualFor="let item of flattenedData"></ng-container>
+  <ng-content select="mat-tree"></ng-content>
+</cdk-virtual-scroll-viewport>
