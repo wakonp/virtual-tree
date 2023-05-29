@@ -2,24 +2,104 @@
 
 This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.0.0.
 
-## Code scaffolding
+## How to use it
 
-Run `ng generate component component-name --project mat-virtual-tree` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project mat-virtual-tree`.
+```
+npm i virtual-tree
+```
 
-> Note: Don't forget to add `--project mat-virtual-tree` or else it will be added to the default project in your `angular.json` file.
+Import Module
 
-## Build
+```
+imports: [CommonModule, VirtualTreeModule, ...],
+```
 
-Run `ng build mat-virtual-tree` to build the project. The build artifacts will be stored in the `dist/` directory.
+Create Component
 
-## Publishing
+```
+interface FoodNode {
+  name: string;
+  children?: FoodNode[];
+}
 
-After building your library with `ng build mat-virtual-tree`, go to the dist folder `cd dist/mat-virtual-tree` and run `npm publish`.
+const TREE_DATA: FoodNode[] = [
+  {
+    name: 'Fruit',
+    children: [{ name: 'Apple' }, { name: 'Banana' }, { name: 'Fruit loops' }],
+  },
+  {
+    name: 'Vegetables',
+    children: [
+      {
+        name: 'Green',
+        children: [{ name: 'Broccoli' }, { name: 'Brussels sprouts' }],
+      },
+      {
+        name: 'Orange',
+        children: [{ name: 'Pumpkins' }, { name: 'Carrots' }],
+      },
+    ],
+  },
+];
+/** Flat node with expandable and level information */
+interface ExampleFlatNode {
+  expandable: boolean;
+  name: string;
+  level: number;
+}
 
-## Running unit tests
 
-Run `ng test mat-virtual-tree` to execute the unit tests via [Karma](https://karma-runner.github.io).
+export class MyComponent {
+  private _transformer = (node: FoodNode, level: number) => {
+    return {
+      expandable: !!node.children && node.children.length > 0,
+      name: node.name,
+      level: level,
+    };
+  };
 
-## Further help
+  treeControl = new FlatTreeControl<ExampleFlatNode>(
+    (node) => node.level,
+    (node) => node.expandable,
+  );
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+  treeFlattener = new MatTreeFlattener(
+    this._transformer,
+    (node) => node.level,
+    (node) => node.expandable,
+    (node) => node.children,
+  );
+
+  dataSource = new VirtualTreeDataSource(this.treeControl, this.treeFlattener);
+
+  constructor() {
+    this.dataSource.data = TREE_DATA;
+  }
+
+  hasChild = (_: number, node: ExampleFlatNode) => node.expandable;
+}
+```
+
+This is a extension of Angular Material Tree example. The main difference is, that now we use the `VirtualTreeDataSource`.
+
+In the template use the `virtual-tree` component as followed:
+
+```
+<virtual-tree style="height: 100vh" [flattenedData]="dataSource.flattenedData | async">
+  <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+    <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
+      <button mat-icon-button disabled></button>
+      {{ node.name }} : {{ node.level }}
+    </mat-tree-node>
+
+    <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+      <button mat-icon-button [attr.aria-label]="'toggle ' + node.filename" (click)="treeControl.toggle(node)">
+        <mat-icon class="mat-icon-rtl-mirror">
+          {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+        </mat-icon>
+      </button>
+      {{ node.name }}
+    </mat-tree-node>
+  </mat-tree>
+</virtual-tree>
+```
